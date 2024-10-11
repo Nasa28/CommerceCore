@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-log.Println(config.Env.DBAddress)
 	db, err := db.NewMysqlDatabase(mysql.Config{
 		User:                 config.Env.DbUser,
 		Passwd:               config.Env.DBPassword,
