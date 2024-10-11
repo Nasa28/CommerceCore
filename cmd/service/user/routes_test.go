@@ -25,7 +25,6 @@ func TestUserServicehandlers(t *testing.T) {
 			Password:    "password",
 			Country:     "country",
 			State:       "state",
-			PhoneNumber: "phoneNumber",
 		}
 		marshalled, _ := json.Marshal(payload)
 		req, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(marshalled))
@@ -53,7 +52,6 @@ func TestUserServicehandlers(t *testing.T) {
 			Password:    "password",
 			Country:     "country",
 			State:       "state",
-			PhoneNumber: "phoneNumber",
 		}
 		marshalled, _ := json.Marshal(payload)
 		req, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(marshalled))

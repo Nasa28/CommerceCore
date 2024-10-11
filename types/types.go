@@ -7,7 +7,6 @@ type RegisterUserPayload struct {
 	Password    string `json:"password" validate:"required,min=3,max=120"`
 	Country     string `json:"country"`
 	State       string `json:"state"`
-	PhoneNumber string `json:"phoneNumber" validate:"required"`
 }
 
 type User struct {
@@ -18,7 +17,6 @@ type User struct {
 	Password    string `json:"password"`
 	Country     string `json:"country"`
 	State       string `json:"state"`
-	PhoneNumber string `json:"phoneNumber"`
 	CreatedAt   string `json:"createdAt"`
 }
 
