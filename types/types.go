@@ -1,13 +1,13 @@
 package types
 
 type RegisterUserPayload struct {
-	Email       string `json:"email"`
-	FirstName   string `json:"firstName"`
-	Lastname    string `json:"lastName"`
-	Password    string `json:"password"`
+	Email       string `json:"email" validate:"required,email"`
+	FirstName   string `json:"firstName" validate:"required"`
+	Lastname    string `json:"lastName" validate:"required"`
+	Password    string `json:"password" validate:"required,min=3,max=120"`
 	Country     string `json:"country"`
 	State       string `json:"state"`
-	PhoneNumber string `json:"phoneNumber"`
+	PhoneNumber string `json:"phoneNumber" validate:"required"`
 }
 
 type User struct {
