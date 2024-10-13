@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Nasa28/CommerceCore/cmd/service/auth"
+	"github.com/Nasa28/CommerceCore/config"
 	"github.com/Nasa28/CommerceCore/types"
 	"github.com/Nasa28/CommerceCore/utils"
 	"github.com/go-playground/validator/v10"
@@ -34,13 +35,14 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	if err := utils.Validate.Struct(payload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
-		return 
+		return
 	}
 
 	_, err := h.store.GetUserByEmail(payload.Email)
 
 	if err == nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exist", payload.Email))
+		return
 	}
 	hashedPassword, err := auth.HashedPassword(payload.Password)
 	if err != nil {
@@ -66,5 +68,32 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
+	var payload types.LoginUserPayload
+	if err := utils.ParseJSON(r, &payload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
 
+	user, err := h.store.GetUserByEmail(payload.Email)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadGateway, fmt.Errorf("user not found, invalid email or password"))
+		return
+	}
+
+	if !auth.ComparePassword([]byte(payload.Password), []byte(user.Password)) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid email or password"))
+		return
+	}
+	secret := []byte(config.Env.JWTSecret)
+	token, err := auth.CreateJWT(secret, user.ID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }

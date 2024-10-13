@@ -37,12 +37,12 @@ func scanUsersIntoRows(rows *sql.Rows) (*types.User, error) {
 	user := new(types.User)
 	err := rows.Scan(
 		&user.ID,
-		&user.Email,
 		&user.FirstName,
 		&user.Lastname,
-		&user.State,
-		&user.Country,
+		&user.Email,
 		&user.Password,
+		&user.Country,
+		&user.State,
 		&user.CreatedAt,
 	)
 	if err != nil {
