@@ -70,11 +70,10 @@ func (s *Store) GetUserByID(id int) (*types.User, error) {
 }
 
 func (s *Store) CreateUser(user types.User) error {
-	res, err := s.db.Exec("INSERT INTO users (firstName, lastName, email, state, country, password) VALUES (?,?,?,?,?,?)", user.FirstName, user.Lastname, user.Email, user.State, user.Country, user.Password)
+	_, err := s.db.Exec("INSERT INTO users (firstName, lastName, email, state, country, password) VALUES (?,?,?,?,?,?)", user.FirstName, user.Lastname, user.Email, user.State, user.Country, user.Password)
 	if err != nil {
 		return err
 	}
-	rowsAffected, _ := res.RowsAffected()
-	fmt.Printf("Rows affected: %d\n", rowsAffected)
+
 	return nil
 }
