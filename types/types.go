@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type RegisterUserPayload struct {
 	Email     string `json:"email" validate:"required,email"`
 	FirstName string `json:"firstName" validate:"required"`
@@ -24,9 +26,59 @@ type User struct {
 	CreatedAt string `json:"createdAt"`
 }
 
+type Product struct {
+	ID          int       `json:"id" validate:"required"`
+	Name        string    `json:"name" validate:"required"`
+	Description string    `json:"description"`
+	Price       float64   `json:"price" validate:"required,gte=0"`
+	Image       string `json:"image_url"`
+	IsActive    bool      `json:"isActive" validate:"required"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
+
+type ProductInventory struct {
+	ID        int       `json:"id" validate:"required"`
+	ProductID int       `json:"product_id" validate:"required"`
+	Quantity  float64   `json:"quantity_available" validate:"required,gte=0"`
+	Stock     int64     `json:"stock" validate:"required,gte=0"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+type ProductAndInventory struct {
+	ID                 int       `json:"id"`
+	Name               string    `json:"name"`
+	Description        string    `json:"description"`
+	Price              float64   `json:"price"`
+	ImageURL           string    `json:"image_url"`
+	QuantityAvailable   float64   `json:"quantity_available"`
+	Stock              int64     `json:"stock"`
+	CreatedAt          time.Time `json:"createdAt"`
+}
+
+type CreateProductPayload struct {
+	Name        string  `json:"name" validate:"required"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price" validate:"required,gte=0"`
+	Image       string `json:"image_url"`
+	Quantity    float64   `json:"quantity_available" validate:"required,gte=0"`
+	Stock       int64     `json:"stock" validate:"required,gte=0"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
+
+type ProductRepository interface {
+	CreateProduct(product CreateProductPayload) error
+	GetProductByID(id int) (*ProductAndInventory, error)
+	// UpdateProduct(product Product) error
+	// DeleteProduct(id int) error
+	// ListProducts(offset, limit int) ([]ProductWithInventory, error)
+}
+
 // make this an interface for easy testing
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
 	GetUserByID(id int) (*User, error)
-	CreateUser(User) error
+	CreateUser(user User) error
+	// UpdateUser(user User) error
+	// DeleteUser(id int) error
+	// ListUsers(offset, limit int) ([]User, error)
 }

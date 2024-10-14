@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Nasa28/CommerceCore/cmd/service/product"
 	"github.com/Nasa28/CommerceCore/cmd/service/user"
 	"github.com/gorilla/mux"
 )
@@ -28,6 +29,11 @@ func (s *APIServer) Run() error {
 	userStore := user.NewStore(s.db)
 	userServiceHandler := user.NewHandler(userStore)
 	userServiceHandler.RegisterRoutes(subRouter)
+
+	productRepository := product.NewStore(s.db)
+	productServiceHandler := product.NewProductHandler(productRepository)
+	productServiceHandler.RegisterRoutes(subRouter)
+
 
 	log.Println("App listening on port:", s.port)
 	return http.ListenAndServe(s.port, router)

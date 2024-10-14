@@ -1,1 +1,26 @@
+# Ignore compiled binaries
+bin/
+
+# Ignore air cache files
+.air/
+# Ignore environment file
 .env
+# Ignore log files
+*.log
+
+# Ignore vendor folder (if you're not using it in production)
+vendor/
+
+# Ignore any temporary files
+*.tmp
+*.out
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.o
+*.a
