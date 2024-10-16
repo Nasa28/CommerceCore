@@ -3,6 +3,7 @@ package product
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/Nasa28/CommerceCore/types"
 )
@@ -93,4 +94,85 @@ func (s *Store) CreateProduct(product types.CreateProductPayload) error {
 
 	return nil
 
+}
+
+func (s *Store) UpdateProduct(productUpdate types.ProductAndInventoryUpdate) error {
+	// Set up transactions
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// Prepare the base SQL update query for products table
+
+	updateQuery := `UPDATE products SET `
+	var setClauses []string
+	var setValues []interface{}
+
+	if productUpdate.Name != nil {
+		setClauses = append(setClauses, "name = ?")
+		setValues = append(setValues, *productUpdate.Name)
+	}
+
+	if productUpdate.Description != nil {
+		setClauses = append(setClauses, "description = ?")
+		setValues = append(setValues, *productUpdate.Description)
+	}
+
+	if productUpdate.Image != nil {
+		setClauses = append(setClauses, "image_url = ?")
+		setValues = append(setValues, *productUpdate.Image)
+	}
+
+	if productUpdate.IsActive != nil {
+		setClauses = append(setClauses, "isActive = ?")
+		setValues = append(setValues, *productUpdate.IsActive)
+	}
+
+	if productUpdate.Price != nil {
+		setClauses = append(setClauses, "price = ?")
+		setValues = append(setValues, *productUpdate.Price)
+	}
+
+	if len(setClauses) > 0 {
+		updateQuery += strings.Join(setClauses, ", ")
+		updateQuery += " WHERE id = ?"
+		setValues = append(setValues, productUpdate.ProductID)
+
+		// Execute the update query
+		_, err := tx.Exec(updateQuery, setValues...)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// Build query for the inventory table
+	inventoryUpdateQuery := "UPDATE product_inventory SET "
+	var inventorySetClauses []string
+	var inventoryValues []interface{}
+
+	if productUpdate.Quantity != nil {
+		inventorySetClauses = append(inventorySetClauses, "quantity_available = ?")
+		inventoryValues = append(inventoryValues, *productUpdate.Quantity)
+	}
+
+	if productUpdate.Stock != nil {
+		inventorySetClauses = append(inventorySetClauses, "stock = ?")
+		inventoryValues = append(inventoryValues, *productUpdate.Stock)
+	}
+	if len(inventorySetClauses) > 0 {
+		inventoryUpdateQuery += strings.Join(inventorySetClauses, ", ")
+		inventoryUpdateQuery += " WHERE product_id = ?"
+		inventoryValues = append(inventoryValues, productUpdate.ProductID)
+
+		// Execute the inventory update query
+		_, err := tx.Exec(inventoryUpdateQuery, inventoryValues...)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
+	return nil
 }

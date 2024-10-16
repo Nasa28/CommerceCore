@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type RegisterUserPayload struct {
 	Email     string `json:"email" validate:"required,email"`
@@ -31,7 +33,7 @@ type Product struct {
 	Name        string    `json:"name" validate:"required"`
 	Description string    `json:"description"`
 	Price       float64   `json:"price" validate:"required,gte=0"`
-	Image       string `json:"image_url"`
+	Image       string    `json:"image_url"`
 	IsActive    bool      `json:"isActive" validate:"required"`
 	CreatedAt   time.Time `json:"createdAt"`
 }
@@ -45,30 +47,40 @@ type ProductInventory struct {
 }
 
 type ProductAndInventory struct {
-	ID                 int       `json:"id"`
-	Name               string    `json:"name"`
-	Description        string    `json:"description"`
-	Price              float64   `json:"price"`
-	ImageURL           string    `json:"image_url"`
-	QuantityAvailable   float64   `json:"quantity_available"`
-	Stock              int64     `json:"stock"`
-	CreatedAt          time.Time `json:"createdAt"`
+	ID                int       `json:"id"`
+	Name              string    `json:"name"`
+	Description       string    `json:"description"`
+	Price             float64   `json:"price"`
+	ImageURL          string    `json:"image_url"`
+	QuantityAvailable float64   `json:"quantity_available"`
+	Stock             int64     `json:"stock"`
+	CreatedAt         time.Time `json:"createdAt"`
 }
 
 type CreateProductPayload struct {
-	Name        string  `json:"name" validate:"required"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price" validate:"required,gte=0"`
-	Image       string `json:"image_url"`
+	Name        string    `json:"name" validate:"required"`
+	Description string    `json:"description"`
+	Price       float64   `json:"price" validate:"required,gte=0"`
+	Image       string    `json:"image_url"`
 	Quantity    float64   `json:"quantity_available" validate:"required,gte=0"`
 	Stock       int64     `json:"stock" validate:"required,gte=0"`
 	CreatedAt   time.Time `json:"createdAt"`
+}
+type ProductAndInventoryUpdate struct {
+	ProductID   int      `json:"id" validate:"required"`
+	Name        *string  `json:"name,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	Price       *float64 `json:"price,omitempty"`
+	Image       *string  `json:"image_url,omitempty"`
+	IsActive    *bool    `json:"isActive,omitempty"`
+	Quantity    *float64 `json:"quantity_available,omitempty"`
+	Stock       *int64   `json:"stock,omitempty"`
 }
 
 type ProductRepository interface {
 	CreateProduct(product CreateProductPayload) error
 	GetProductByID(id int) (*ProductAndInventory, error)
-	// UpdateProduct(product Product) error
+	UpdateProduct(product ProductAndInventoryUpdate) error
 	// DeleteProduct(id int) error
 	// ListProducts(offset, limit int) ([]ProductWithInventory, error)
 }

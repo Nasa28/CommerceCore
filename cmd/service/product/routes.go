@@ -22,6 +22,7 @@ func NewProductHandler(repository types.ProductRepository) *ProductHandler {
 func (p ProductHandler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/products", p.handleCreateproduct).Methods("POST")
 	router.HandleFunc("/products/{id}", p.handleGetProductByID).Methods("GET")
+	router.HandleFunc("/products/{id}", p.handleProductUpdate).Methods("PATCH")
 }
 
 func (p *ProductHandler) handleCreateproduct(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +65,29 @@ func (p *ProductHandler) handleGetProductByID(w http.ResponseWriter, r *http.Req
 		return
 	}
 	// Create a flattened response
-	
+
 	// Send the product details as a JSON response
 	utils.WriteJSON(w, http.StatusOK, product)
+}
+
+func (p *ProductHandler) handleProductUpdate(w http.ResponseWriter, r *http.Request) {
+
+	var payload types.ProductAndInventoryUpdate
+
+	if err := utils.ParseJSON(r, &payload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+	}
+
+	err := p.repository.UpdateProduct(payload)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusNoContent, nil)
 }
