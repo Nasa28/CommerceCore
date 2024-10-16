@@ -176,3 +176,52 @@ func (s *Store) UpdateProduct(productUpdate types.ProductAndInventoryUpdate) err
 	tx.Commit()
 	return nil
 }
+
+func (s *Store) ListProducts(offset, limit int) ([]types.ProductAndInventory, error) {
+	query := `SELECT 
+					p.id,
+					p.name, 
+					p.description, 
+					p.price, 
+					p.image_url,
+					pi.quantity_available, 
+					pi.stock,
+					p.createdAt
+				FROM products AS p
+				JOIN product_inventory AS pi ON pi.product_id = p.id
+				ORDER BY p.createdAt DESC
+				LIMIT ? OFFSET ?`
+	rows, err := s.db.Query(query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Initialize the slice to store the products
+	products := []types.ProductAndInventory{}
+
+	for rows.Next() {
+		var product types.ProductAndInventory
+		err := rows.Scan(
+			&product.ID,
+			&product.Name,
+			&product.Description,
+			&product.Price,
+			&product.ImageURL,
+			&product.QuantityAvailable,
+			&product.Stock,
+			&product.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, product)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}

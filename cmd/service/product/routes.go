@@ -23,6 +23,7 @@ func (p ProductHandler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/products", p.handleCreateproduct).Methods("POST")
 	router.HandleFunc("/products/{id}", p.handleGetProductByID).Methods("GET")
 	router.HandleFunc("/products/{id}", p.handleProductUpdate).Methods("PATCH")
+	router.HandleFunc("/products", p.handleGetAllProducts).Methods("GET")
 }
 
 func (p *ProductHandler) handleCreateproduct(w http.ResponseWriter, r *http.Request) {
@@ -90,4 +91,28 @@ func (p *ProductHandler) handleProductUpdate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	utils.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (p *ProductHandler) handleGetAllProducts(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	offsetStr := query.Get("offset")
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+
+	limitStr := query.Get("limit")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	}
+
+	products, err := p.repository.ListProducts(offset, limit)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, products)
 }

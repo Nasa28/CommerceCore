@@ -82,7 +82,7 @@ type ProductRepository interface {
 	GetProductByID(id int) (*ProductAndInventory, error)
 	UpdateProduct(product ProductAndInventoryUpdate) error
 	// DeleteProduct(id int) error
-	// ListProducts(offset, limit int) ([]ProductWithInventory, error)
+	ListProducts(offset, limit int) ([]ProductAndInventory, error)
 }
 
 // make this an interface for easy testing
