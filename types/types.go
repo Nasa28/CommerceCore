@@ -22,7 +22,7 @@ type User struct {
 	Email     string `json:"email"`
 	FirstName string `json:"firstName"`
 	Lastname  string `json:"lastName"`
-	Password  string `json:"password"`
+	Password  string `json:"password,omitempty"`
 	Country   string `json:"country"`
 	State     string `json:"state"`
 	CreatedAt string `json:"createdAt"`

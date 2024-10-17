@@ -40,7 +40,6 @@ func scanUsersIntoRows(rows *sql.Rows) (*types.User, error) {
 		&user.FirstName,
 		&user.Lastname,
 		&user.Email,
-		&user.Password,
 		&user.Country,
 		&user.State,
 		&user.CreatedAt,
@@ -52,10 +51,11 @@ func scanUsersIntoRows(rows *sql.Rows) (*types.User, error) {
 }
 
 func (s *Store) GetUserByID(id int) (*types.User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE id = ?", id)
+	rows, err := s.db.Query("SELECT id, email, firstName, lastName, country, state, createdAt FROM users WHERE id = ?", id)
 	if err != nil {
 		return nil, err
 	}
+
 	user := new(types.User)
 	for rows.Next() {
 		user, err = scanUsersIntoRows(rows)
@@ -66,6 +66,7 @@ func (s *Store) GetUserByID(id int) (*types.User, error) {
 	if user.ID == 0 {
 		return nil, fmt.Errorf("user not found")
 	}
+	defer rows.Close()
 	return user, nil
 }
 

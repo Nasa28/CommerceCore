@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Nasa28/CommerceCore/cmd/service/auth"
 	"github.com/Nasa28/CommerceCore/types"
 	"github.com/Nasa28/CommerceCore/utils"
 	"github.com/go-playground/validator/v10"
@@ -13,17 +14,18 @@ import (
 
 type ProductHandler struct {
 	repository types.ProductRepository
+	userStore  types.UserStore
 }
 
-func NewProductHandler(repository types.ProductRepository) *ProductHandler {
-	return &ProductHandler{repository: repository}
+func NewProductHandler(repository types.ProductRepository, userStore types.UserStore) *ProductHandler {
+	return &ProductHandler{repository: repository, userStore: userStore}
 }
 
 func (p ProductHandler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/products", p.handleCreateproduct).Methods("POST")
+	router.HandleFunc("/products", auth.ProtectedRoute(p.handleCreateproduct, p.userStore)).Methods("POST")
 	router.HandleFunc("/products/{id}", p.handleGetProductByID).Methods("GET")
 	router.HandleFunc("/products/{id}", p.handleProductUpdate).Methods("PATCH")
-	router.HandleFunc("/products", p.handleGetAllProducts).Methods("GET")
+	router.HandleFunc("/products", auth.ProtectedRoute(p.handleGetAllProducts, p.userStore)).Methods("GET")
 }
 
 func (p *ProductHandler) handleCreateproduct(w http.ResponseWriter, r *http.Request) {

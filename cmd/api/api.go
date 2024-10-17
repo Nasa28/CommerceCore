@@ -31,9 +31,8 @@ func (s *APIServer) Run() error {
 	userServiceHandler.RegisterRoutes(subRouter)
 
 	productRepository := product.NewStore(s.db)
-	productServiceHandler := product.NewProductHandler(productRepository)
+	productServiceHandler := product.NewProductHandler(productRepository, userStore)
 	productServiceHandler.RegisterRoutes(subRouter)
-
 
 	log.Println("App listening on port:", s.port)
 	return http.ListenAndServe(s.port, router)

@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Nasa28/CommerceCore/cmd/service/auth"
 	"github.com/Nasa28/CommerceCore/config"
@@ -23,6 +24,8 @@ func NewHandler(store types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/register", h.handleRegister).Methods("POST")
 	router.HandleFunc("/login", h.handleLogin).Methods("POST")
+	router.HandleFunc("/users/{id}", h.handleGetUserByID).Methods("GET")
+
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -107,4 +110,26 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
+}
+func (h *Handler) handleGetUserByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	// Convert the idStr to an integer
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid product ID", http.StatusBadRequest)
+		return
+	}
+
+	// Fetch the product by ID
+	product, err := h.store.GetUserByID(id)
+	if err != nil {
+		// Handle error if product is not found
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+	// Create a flattened response
+
+	// Send the product details as a JSON response
+	utils.WriteJSON(w, http.StatusOK, product)
 }
