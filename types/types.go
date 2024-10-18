@@ -77,6 +77,11 @@ type ProductAndInventoryUpdate struct {
 	Stock       *int64   `json:"stock,omitempty"`
 }
 
+type Role struct {
+	ID   int64  `json:"id" validate:"required"`
+	Name string `json:"name" validate:"required"`
+}
+
 type ProductRepository interface {
 	CreateProduct(product CreateProductPayload) error
 	GetProductByID(id int) (*ProductAndInventory, error)
@@ -93,4 +98,9 @@ type UserStore interface {
 	// UpdateUser(user User) error
 	// DeleteUser(id int) error
 	// ListUsers(offset, limit int) ([]User, error)
+}
+
+type RoleStore interface {
+	CreateRole(role Role) error
+	GetAllRoles() ([]Role, error)
 }

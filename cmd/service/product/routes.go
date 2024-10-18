@@ -21,7 +21,7 @@ func NewProductHandler(repository types.ProductRepository, userStore types.UserS
 	return &ProductHandler{repository: repository, userStore: userStore}
 }
 
-func (p ProductHandler) RegisterRoutes(router *mux.Router) {
+func (p *ProductHandler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/products", auth.ProtectedRoute(p.handleCreateproduct, p.userStore)).Methods("POST")
 	router.HandleFunc("/products/{id}", p.handleGetProductByID).Methods("GET")
 	router.HandleFunc("/products/{id}", p.handleProductUpdate).Methods("PATCH")
