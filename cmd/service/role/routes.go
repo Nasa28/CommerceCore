@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Nasa28/CommerceCore/cmd/service/auth"
 	"github.com/Nasa28/CommerceCore/types"
 	"github.com/Nasa28/CommerceCore/utils"
 	"github.com/go-playground/validator/v10"
@@ -11,7 +12,8 @@ import (
 )
 
 type RoleHandler struct {
-	store types.RoleStore
+	store     types.RoleStore
+	userStore types.UserStore
 }
 
 func NewRoleHandler(store types.RoleStore) *RoleHandler {
@@ -19,8 +21,8 @@ func NewRoleHandler(store types.RoleStore) *RoleHandler {
 }
 
 func (h *RoleHandler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/roles", h.handleCreateRole).Methods("POST")
-	router.HandleFunc("/roles", h.handleGetRoles).Methods("GET")
+	router.HandleFunc("/roles", auth.ProtectedRoute(h.handleCreateRole, h.userStore, "admin")).Methods("POST")
+	router.HandleFunc("/roles", auth.ProtectedRoute(h.handleGetRoles, h.userStore, "admin")).Methods("GET")
 }
 
 func (h *RoleHandler) handleCreateRole(w http.ResponseWriter, r *http.Request) {

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -35,7 +36,7 @@ func CreateJWT(secret []byte, userId int) (string, error) {
 
 	return tokenString, nil
 }
-func ProtectedRoute(handleFunc http.HandlerFunc, store types.UserStore) http.HandlerFunc {
+func ProtectedRoute(handleFunc http.HandlerFunc, store types.UserStore, allowedRoles ...string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract JWT Token from request
 		tokenString := extractToken(r)
@@ -89,6 +90,23 @@ func ProtectedRoute(handleFunc http.HandlerFunc, store types.UserStore) http.Han
 				AccessDenied(w)
 				return
 			}
+
+			// Check if the user's role is in the allowedRoles list
+			if !roleIsAllowed(user.Role, allowedRoles) {
+				log.Printf("Access denied: User role '%s' is not allowed", user.Role)
+
+				w.WriteHeader(http.StatusForbidden)
+
+				response := map[string]string{"Message": "Forbidden: Insufficient permissions"}
+
+				// Encode the map as JSON and write it to the response
+				if err := json.NewEncoder(w).Encode(response); err != nil {
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+
+				return
+			}
 			//Set user in context
 			ctx := context.WithValue(r.Context(), UserKey, user)
 			r = r.WithContext(ctx)
@@ -130,4 +148,13 @@ func GetUserFromContext(ctx context.Context) *types.User {
 		return nil
 	}
 	return user
+}
+
+func roleIsAllowed(userRole string, allowedRoles []string) bool {
+	for _, role := range allowedRoles {
+		if userRole == role {
+			return true
+		}
+	}
+	return false
 }

@@ -24,8 +24,8 @@ func NewHandler(store types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/register", h.handleRegister).Methods("POST")
 	router.HandleFunc("/login", h.handleLogin).Methods("POST")
-	router.HandleFunc("/users/{id}", h.handleGetUserByID).Methods("GET")
-	router.HandleFunc("/users", h.handleGetUsers).Methods("GET")
+	router.HandleFunc("/users/{id}", auth.ProtectedRoute(h.handleGetUserByID, h.store, "admin")).Methods("GET")
+	router.HandleFunc("/users", auth.ProtectedRoute(h.handleGetUsers, h.store, "admin")).Methods("GET")
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {

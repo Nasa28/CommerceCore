@@ -22,10 +22,10 @@ func NewProductHandler(repository types.ProductRepository, userStore types.UserS
 }
 
 func (p *ProductHandler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/products", auth.ProtectedRoute(p.handleCreateproduct, p.userStore)).Methods("POST")
+	router.HandleFunc("/products", auth.ProtectedRoute(p.handleCreateproduct, p.userStore, "admin", "agent")).Methods("POST")
 	router.HandleFunc("/products/{id}", p.handleGetProductByID).Methods("GET")
-	router.HandleFunc("/products/{id}", p.handleProductUpdate).Methods("PATCH")
-	router.HandleFunc("/products", auth.ProtectedRoute(p.handleGetAllProducts, p.userStore)).Methods("GET")
+	router.HandleFunc("/products/{id}", auth.ProtectedRoute(p.handleProductUpdate, p.userStore, "admin", "agent")).Methods("PATCH")
+	router.HandleFunc("/products", p.handleGetAllProducts).Methods("GET")
 }
 
 func (p *ProductHandler) handleCreateproduct(w http.ResponseWriter, r *http.Request) {

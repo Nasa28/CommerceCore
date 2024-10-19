@@ -16,20 +16,29 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) GetUserByEmail(email string) (*types.User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE email = ?", email)
+	row := s.db.QueryRow("SELECT id, email, firstName, lastName, password, country, state FROM users WHERE email = ?", email)
+
+	// Create a user object to hold the result
+	user := new(types.User)
+
+	// Scan the result into the user struct
+	err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.Lastname,
+		&user.Password,
+		&user.Country,
+		&user.State,
+	)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	if err != nil {
 		return nil, err
 	}
-	user := new(types.User)
-	for rows.Next() {
-		user, err = scanUsersIntoRows(rows)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if user.ID == 0 {
-		return nil, fmt.Errorf("user not found")
-	}
+
 	return user, nil
 }
 
