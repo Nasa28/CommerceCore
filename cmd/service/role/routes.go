@@ -34,6 +34,7 @@ func (h *RoleHandler) handleCreateRole(w http.ResponseWriter, r *http.Request) {
 	if err := utils.Validate.Struct(payload); err != nil {
 		errors := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
 	}
 
 	err := h.store.CreateRole(payload)

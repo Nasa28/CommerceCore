@@ -53,7 +53,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.store.CreateUser(types.User{
+	err = h.store.CreateUser(types.RegisterUserPayload{
 		FirstName: payload.FirstName,
 		Lastname:  payload.Lastname,
 		Email:     payload.Email,

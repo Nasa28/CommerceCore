@@ -25,6 +25,7 @@ type User struct {
 	Password  string `json:"password,omitempty"`
 	Country   string `json:"country"`
 	State     string `json:"state"`
+	Role      string `json:"role,omitempty"`
 	CreatedAt string `json:"createdAt"`
 }
 
@@ -78,7 +79,7 @@ type ProductAndInventoryUpdate struct {
 }
 
 type Role struct {
-	ID   int64  `json:"id" validate:"required"`
+	ID   int64  `json:"id"`
 	Name string `json:"name" validate:"required"`
 }
 
@@ -94,7 +95,7 @@ type ProductRepository interface {
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
 	GetUserByID(id int) (*User, error)
-	CreateUser(user User) error
+	CreateUser(user RegisterUserPayload) error
 	// UpdateUser(user User) error
 	// DeleteUser(id int) error
 	// ListUsers(offset, limit int) ([]User, error)
