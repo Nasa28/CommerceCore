@@ -25,7 +25,7 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/register", h.handleRegister).Methods("POST")
 	router.HandleFunc("/login", h.handleLogin).Methods("POST")
 	router.HandleFunc("/users/{id}", h.handleGetUserByID).Methods("GET")
-
+	router.HandleFunc("/users", h.handleGetUsers).Methods("GET")
 }
 
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -132,4 +132,29 @@ func (h *Handler) handleGetUserByID(w http.ResponseWriter, r *http.Request) {
 
 	// Send the product details as a JSON response
 	utils.WriteJSON(w, http.StatusOK, product)
+}
+
+func (h *Handler) handleGetUsers(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	offsetStr := query.Get("offset")
+	offset, err := strconv.Atoi(offsetStr)
+
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+
+	limitStr := query.Get("limit")
+
+	limit, err := strconv.Atoi(limitStr)
+
+	if err != nil || limit < 0 {
+		limit = 20
+	}
+
+	users, err := h.store.ListUsers(limit, offset)
+
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+	}
+	utils.WriteJSON(w, http.StatusOK, users)
 }

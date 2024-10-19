@@ -90,7 +90,7 @@ func (s *Store) CreateUser(user types.RegisterUserPayload) error {
 
 	// Insert user into the `users` table
 	res, err := s.db.Exec(
-		"INSERT INTO users (firstName, lastName, email, state, country, password) VALUES (?,?,?,?,?,?)", 
+		"INSERT INTO users (firstName, lastName, email, state, country, password) VALUES (?,?,?,?,?,?)",
 		user.FirstName, user.Lastname, user.Email, user.State, user.Country, user.Password)
 	if err != nil {
 		return err
@@ -122,4 +122,54 @@ func (s *Store) CreateUser(user types.RegisterUserPayload) error {
 	}
 
 	return nil
+}
+
+func (s *Store) ListUsers(limit, offset int) ([]types.User, error) {
+	query := `
+		SELECT 
+			u.id,
+			u.email, 
+			u.firstName, 
+			u.lastName, 
+			u.state,
+			u.country,
+			COALESCE(r.name, 'user') AS role, 
+			u.createdAt 
+		FROM users AS u 
+		LEFT JOIN user_roles AS ur ON u.id = ur.user_id
+		LEFT JOIN roles AS r ON ur.role_id = r.id
+		LIMIT ? OFFSET ?
+		`
+	rows, err := s.db.Query(query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := []types.User{}
+
+	for rows.Next() {
+		var user types.User
+
+		err := rows.Scan(
+			&user.ID,
+			&user.Email,
+			&user.FirstName,
+			&user.Lastname,
+			&user.State,
+			&user.Country,
+			&user.Role,
+			&user.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
 }

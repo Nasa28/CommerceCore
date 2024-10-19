@@ -98,7 +98,7 @@ type UserStore interface {
 	CreateUser(user RegisterUserPayload) error
 	// UpdateUser(user User) error
 	// DeleteUser(id int) error
-	// ListUsers(offset, limit int) ([]User, error)
+	ListUsers(offset, limit int) ([]User, error)
 }
 
 type RoleStore interface {

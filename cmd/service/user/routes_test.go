@@ -19,12 +19,12 @@ func TestUserServicehandlers(t *testing.T) {
 
 	t.Run("It should fail if the payload is invalid", func(t *testing.T) {
 		payload := types.RegisterUserPayload{
-			Email:       "johndoeemail.com",
-			FirstName:   "firstName",
-			Lastname:    "lastName",
-			Password:    "password",
-			Country:     "country",
-			State:       "state",
+			Email:     "johndoeemail.com",
+			FirstName: "firstName",
+			Lastname:  "lastName",
+			Password:  "password",
+			Country:   "country",
+			State:     "state",
 		}
 		marshalled, _ := json.Marshal(payload)
 		req, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(marshalled))
@@ -46,12 +46,12 @@ func TestUserServicehandlers(t *testing.T) {
 
 	t.Run("Should successfully register the user", func(t *testing.T) {
 		payload := types.RegisterUserPayload{
-			Email:       "johndoe@email.com",
-			FirstName:   "firstName",
-			Lastname:    "lastName",
-			Password:    "password",
-			Country:     "country",
-			State:       "state",
+			Email:     "johndoe@email.com",
+			FirstName: "firstName",
+			Lastname:  "lastName",
+			Password:  "password",
+			Country:   "country",
+			State:     "state",
 		}
 		marshalled, _ := json.Marshal(payload)
 		req, err := http.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(marshalled))
@@ -85,4 +85,8 @@ func (m *MockUserStore) GetUserByID(id int) (*types.User, error) {
 
 func (m *MockUserStore) CreateUser(types.RegisterUserPayload) error {
 	return nil
+}
+
+func (m *MockUserStore) ListUsers(limit, offset int) ([]types.User, error) {
+	return nil, nil
 }
