@@ -97,7 +97,7 @@ func ProtectedRoute(handleFunc http.HandlerFunc, store types.UserStore, allowedR
 
 				w.WriteHeader(http.StatusForbidden)
 
-				response := map[string]string{"Message": "Forbidden: Insufficient permissions"}
+				response := map[string]string{"Message": "Forbidden: You are not authorized to access this resource"}
 
 				// Encode the map as JSON and write it to the response
 				if err := json.NewEncoder(w).Encode(response); err != nil {
